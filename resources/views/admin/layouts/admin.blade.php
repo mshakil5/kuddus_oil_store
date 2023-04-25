@@ -84,6 +84,7 @@
 
         @if(Auth::user()->is_type == 'admin' || in_array('1', json_decode(Auth::user()->staff->role->permissions)))
         <li><a class="app-menu__item" href="{{url('admin/register')}}" id="admin"><i class="app-menu__icon fa fa-pie-chart"></i><span class="app-menu__label">Admin</span></a></li>
+        <li><a class="app-menu__item" href="{{ route('admin.account')}}" id="account"><i class="app-menu__icon fa fa-pie-chart"></i><span class="app-menu__label">Account</span></a></li>
         @endif
 
         

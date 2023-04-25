@@ -92,14 +92,13 @@
                                         <div class="col-md-6">
 
                                             <div>
-                                                <label for="bank">Bank Name</label>
+                                                <label for="account_id">Account Name</label>
                                                 
-                                                <select  id="bank" name="bank" class="form-control">
+                                                <select id="account_id" name="account_id" class="form-control">
                                                     <option value="">Select</option>
-                                                    <option value="cash">Cash</option>
-                                                    <option value="pubali_bank">Pubali Bank</option>
-                                                    <option value="national_bank">National Bank</option>
-                                                    <option value="other_bank">Other Bank</option>
+                                                    @foreach (\App\Models\Account::all() as $account)
+                                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
         
@@ -170,7 +169,9 @@
                                         <th style="text-align: center">Product</th>
                                         <th style="text-align: center">Company</th>
                                         <th style="text-align: center">Quantity</th>
+                                        <th style="text-align: center">PPU</th>
                                         <th style="text-align: center">Amount</th>
+                                        <th style="text-align: center">Due</th>
                                         <th style="text-align: center">Action</th>
                                     </tr>
                                     </thead>
@@ -180,7 +181,7 @@
                                             <td style="text-align: center">{{ $key + 1 }}</td>
                                             <td style="text-align: center">{{$data->date}}</td>
                                             <td style="text-align: center">{{$data->invoiceno}}</td>
-                                            <td style="text-align: center">{{\App\Models\Customer::where('id',$data->customer_id)->first()->name}}- ({{\App\Models\Customer::where('id',$data->customer_id)->first()->balance}})</td>
+                                            <td style="text-align: center">{{\App\Models\Customer::where('id',$data->customer_id)->first()->name}}  ({{\App\Models\Customer::where('id',$data->customer_id)->first()->balance}})</td>
                                             <td style="text-align: center">
                                                 @if ($data->product_id == 1)
                                                  Octen 
@@ -198,7 +199,9 @@
                                                 @if ($data->company == 1) Padma @elseif ($data->company == 2) Meghna @elseif ($data->company == 3) Jomuna @endif
                                             </td>
                                             <td style="text-align: center">{{$data->quantity}}</td>
+                                            <td style="text-align: center">{{$data->price_per_unit}}</td>
                                             <td style="text-align: center">{{$data->amount}}</td>
+                                            <td style="text-align: center">{{$data->due}}</td>
                                             <td style="text-align: center">
                                             <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                                             {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
@@ -246,7 +249,7 @@
                     form_data.append("company", $("#company").val());
                     form_data.append("car_number", $("#car_number").val());
                     form_data.append("product_take", $("#product_take").val());
-                    form_data.append("bank", $("#bank").val());
+                    form_data.append("account_id", $("#account_id").val());
                     form_data.append("quantity", $("#quantity").val());
                     form_data.append("amount", $("#amount").val());
                     form_data.append("cash_rcv", $("#cash_rcv").val());
@@ -283,7 +286,7 @@
                     form_data.append("company", $("#company").val());
                     form_data.append("car_number", $("#car_number").val());
                     form_data.append("product_take", $("#product_take").val());
-                    form_data.append("bank", $("#bank").val());
+                    form_data.append("account_id", $("#account_id").val());
                     form_data.append("quantity", $("#quantity").val());
                     form_data.append("amount", $("#amount").val());
                     form_data.append("cash_rcv", $("#cash_rcv").val());
@@ -374,7 +377,7 @@
                 $("#company").val(data.info.company);
                 $("#car_number").val(data.info.car_number);
                 $("#product_take").val(data.info.product_take);
-                $("#bank").val(data.info.bank);
+                $("#account_id").val(data.info.account_id);
                 $("#quantity").val(data.info.quantity);
                 $("#cash_rcv").val(data.info.cash_rcv);
                 $("#amount").val(data.info.amount);

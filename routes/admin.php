@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Admin\ContactMailController; 
 use App\Http\Controllers\Admin\ImageController;
@@ -29,6 +30,15 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('register/{id}', 'App\Http\Controllers\Admin\AdminController@admindestroy');
     //admin registration end
 
+    
+    // account
+    Route::get('/account', [AccountController::class, 'index'])->name('admin.account');
+    Route::post('/account', [AccountController::class, 'store']);
+    Route::get('/account/{id}/edit', [AccountController::class, 'edit']);
+    Route::put('/account/{id}', [AccountController::class, 'update']);
+    Route::get('/account/{id}', [AccountController::class, 'delete']);
+
+
     // photo
     Route::get('/photo', [ImageController::class, 'index'])->name('admin.photo');
     Route::post('/photo', [ImageController::class, 'store']);
@@ -44,6 +54,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::put('/customer/{id}', [CustomerController::class, 'update']);
     Route::get('/customer/{id}', [CustomerController::class, 'delete']);
     Route::post('/getcustomer', [CustomerController::class, 'getcustomer']);
+    Route::post('/customer-deposit', [CustomerController::class, 'customerDeposit']);
+    Route::get('/customer-transaction/{id}', [CustomerController::class, 'getCustomerTransaction'])->name('customer.tran');
+    Route::post('/customer-tran-update', [CustomerController::class, 'customerTranUpdate']);
     
     // sale
     Route::get('/sale', [SalesController::class, 'index'])->name('admin.sale');

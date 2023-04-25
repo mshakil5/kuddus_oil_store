@@ -32,10 +32,9 @@
                         <div class="card-header">
                             <h3>New Transaction</h3>
                         </div>
+                        <div class="ermsg"></div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="ermsg">
-                                </div>
                                 <div class="container">
                                     {!! Form::open(['url' => 'admin/master/create','id'=>'createThisTranForm']) !!}
                                     {!! Form::hidden('codeid','', ['id' => 'codeid']) !!}
@@ -43,6 +42,7 @@
                                     <div>
                                         <label for="date">Date</label>
                                         <input type="date" id="date" name="date" value="{{date('Y-m-d')}}" class="form-control">
+                                        <input type="hidden" id="uid" name="uid" class="form-control">
                                     </div>
                                     <div>
                                         <label for="type">Transaction Type</label>
@@ -70,7 +70,7 @@
                                         <input type="number" id="amount" name="amount" class="form-control">
                                     </div>
                                     <hr>
-                                    <input type="button" id="addBtn" value="Create" class="btn btn-primary">
+                                    <input type="button" id="addtranBtn" value="Create" class="btn btn-primary">
                                     <input type="button" id="tranFormCloseBtn" value="Close" class="btn btn-warning">
                                     {!! Form::close() !!}
                                 </div>
@@ -154,6 +154,7 @@
                                         <th style="text-align: center">Image</th>
                                         <th style="text-align: center">Address</th>
                                         <th style="text-align: center">Balance</th>
+                                        <th style="text-align: center">Sales Report</th>
                                         <th style="text-align: center">Action</th>
                                     </tr>
                                     </thead>
@@ -172,11 +173,15 @@
                                             
                                             <td style="text-align: center">{{$data->address}}</td>
                                             <td style="text-align: center">{{$data->balance}}</td>
+                                            <td style="text-align: center"> 
+                                            
+                                            </td>
                                             
                                             <td style="text-align: center">
-                                            <a id="DepBtn" rid="{{$data->id}}"><i class="fa fa-plus" style="color: #59cf78;font-size:16px;"></i></a>
+                                                <a href="{{route('customer.tran',$data->id)}}"><i class="fa fa-eye" style="color: #191987;font-size:16px;"></i></a>
+                                            <a id="DepBtn" rid="{{$data->id}}" uid="{{$data->id}}"><i class="fa fa-plus" style="color: #59cf78;font-size:16px;"></i></a>
                                             <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                                            <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
+                                            {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
                                             </td>
                                         </tr>
                                         @endforeach
@@ -202,12 +207,12 @@
                 $("#addThisFormContainer").show(300);
 
             });
-            $("#DepBtn").click(function(){
-                clearform();
-                $("#newBtn").hide(100);
-                $("#addThisTransactionForm").show(300);
+            // $("#DepBtn").click(function(){
+            //     clearform();
+            //     $("#newBtn").hide(100);
+            //     $("#addThisTransactionForm").show(300);
 
-            });
+            // });
             $("#FormCloseBtn").click(function(){
                 $("#addThisFormContainer").hide(200);
                 $("#newBtn").show(100);
@@ -359,11 +364,59 @@
                 $("#addBtn").val('Create');
             }
 
+            // Add 
+            $("#contentContainer").on('click','#DepBtn', function(){
+                
+                codeid = $(this).attr('rid');
+                uid = $(this).attr('uid');
+                
+                $("#dataid").val(codeid);
+                $("#uid").val(uid);
+                $("#addThisTransactionForm").show(300);
+                $("#newBtn").hide(300);
+                    pagetop();
+            });
+            // Add end
+
+            var url = "{{URL::to('/admin/customer-deposit')}}";
+            // console.log(url);
+            $("#addtranBtn").click(function(){
+            //   alert("#addBtn");
+                    var form_data = new FormData();
+                    form_data.append("uid", $("#uid").val());
+                    form_data.append("date", $("#date").val());
+                    form_data.append("description", $("#description").val());
+                    form_data.append("type", $("#type").val());
+                    form_data.append("source", $("#source").val());
+                    form_data.append("amount", $("#amount").val());
+                    $.ajax({
+                      url: url,
+                      method: "POST",
+                      contentType: false,
+                      processData: false,
+                      data:form_data,
+                      success: function (d) {
+                          if (d.status == 303) {
+                              $(".ermsg").html(d.message);
+                          }else if(d.status == 300){
+                            success("Transaction Create Successfully!!");
+                                window.setTimeout(function(){location.reload()},2000)
+                          }
+                      },
+                      error: function (d) {
+                          console.log(d);
+                      }
+                  });
+                //create  end
+            });
+
         });
 
         $(document).ready(function () {
             $('#example').DataTable();
         });
+
+        
 
         
 

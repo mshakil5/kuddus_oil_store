@@ -43,33 +43,23 @@
                                     <div>
                                         <label for="date">Date</label>
                                         <input type="date" id="date" name="date" value="{{date('Y-m-d')}}" class="form-control">
+                                        <input type="hidden" id="customer_id" name="customer_id" class="form-control">
                                     </div>
                                     <div id="tTypeDiv">
                                         <label for="type">Transaction Type</label>
                                         <select class="form-control" id="type" name="type">
                                             <option value="">Select</option>
                                             <option value="1">Deposit</option>
-                                            <option value="2">Pay Order</option>
-                                            <option value="3">Expense</option>
-                                            <option value="4">Transfer</option>
-                                        </select>
-                                    </div>
-                                    <div id="transferDiv">
-                                        <label for="transfer_from">Transfer From</label>
-                                        <select  id="transfer_from" name="transfer_from" class="form-control">
-                                            <option value="">Select</option>
-                                            @foreach (\App\Models\Account::all() as $acc)
-                                            <option value="{{ $acc->id }}">{{ $acc->name }}</option>
-                                            @endforeach
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="account_id">Account Name</label>
-                                        <select id="account_id" name="account_id" class="form-control">
+                                        <label for="source">Accounts Name</label>
+                                        <select  id="source" name="source" class="form-control">
                                             <option value="">Select</option>
-                                            @foreach (\App\Models\Account::all() as $account)
-                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                            @endforeach
+                                            <option value="1">Cash</option>
+                                            <option value="2">National Bank</option>
+                                            <option value="3">Pubali Bank</option>
+                                            <option value="4">Others Bank</option>
                                         </select>
                                     </div>
                                     <div>
@@ -93,7 +83,7 @@
                 </div>
             </div>
         </div>
-        <button id="newBtn" type="button" class="btn btn-info">Add New</button>
+        <a href="{{route('admin.customer')}}" class="btn btn-info">Back</a>
         <hr>
         <div id="contentContainer">
             <div class="row">
@@ -112,7 +102,6 @@
                                         <th style="text-align: center">Date</th>
                                         <th style="text-align: center">Description</th>
                                         <th style="text-align: center">Transaction Type</th>
-                                        <th style="text-align: center">Transfer From</th>
                                         <th style="text-align: center">Account Name</th>
                                         <th style="text-align: center">Amount</th>
                                         <th style="text-align: center">Action</th>
@@ -140,18 +129,21 @@
                                                 @endif
                                             </td>
                                             <td style="text-align: center">
-                                                @if (isset($data->transfer_from)){{\App\Models\Account::where('id',$data->transfer_from)->first()->name}}
+                                                @if ($data->source == 1)
+                                                Cash
+                                                @elseif ($data->source == 2)
+                                                National Bank
+                                                @elseif ($data->source == 3)
+                                                Pubali Bank
+                                                @else
+                                                Others Bank
                                                 @endif
-                                            </td>
-                                            <td style="text-align: center">
-                                                {{$data->account->name}}
                                             </td>
                                             <td style="text-align: center">{{$data->amount}}</td>
                                             
                                             <td style="text-align: center">
                                                 @if (isset($data->sale_id))
-
-                                                @elseif (isset($data->customer_id))
+                                                    
                                                 @else
                                                 <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                                                     
@@ -202,49 +194,23 @@
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
             //
             var url = "{{URL::to('/admin/transaction')}}";
+            var upurl = "{{URL::to('/admin/customer-tran-update')}}";
             // console.log(url);
             $("#addBtn").click(function(){
             //   alert("#addBtn");
-                if($(this).val() == 'Create') {
-                    var form_data = new FormData();
-                    form_data.append("date", $("#date").val());
-                    form_data.append("description", $("#description").val());
-                    form_data.append("type", $("#type").val());
-                    form_data.append("account_id", $("#account_id").val());
-                    form_data.append("amount", $("#amount").val());
-                    form_data.append("transfer_from", $("#transfer_from").val());
-                    $.ajax({
-                      url: url,
-                      method: "POST",
-                      contentType: false,
-                      processData: false,
-                      data:form_data,
-                      success: function (d) {
-                          if (d.status == 303) {
-                              $(".ermsg").html(d.message);
-                          }else if(d.status == 300){
-                            success("Data Insert Successfully!!");
-                                window.setTimeout(function(){location.reload()},2000)
-                          }
-                      },
-                      error: function (d) {
-                          console.log(d);
-                      }
-                  });
-                }
-                //create  end
+                
                 //Update
                 if($(this).val() == 'Update'){
                     var form_data = new FormData();
                     form_data.append("date", $("#date").val());
                     form_data.append("description", $("#description").val());
                     form_data.append("type", $("#type").val());
-                    form_data.append("account_id", $("#account_id").val());
+                    form_data.append("source", $("#source").val());
                     form_data.append("amount", $("#amount").val());
-                    form_data.append("transfer_from", $("#transfer_from").val());
-                    form_data.append('_method', 'put');
+                    form_data.append("customer_id", $("#customer_id").val());
+                    form_data.append("codeid", $("#codeid").val());
                     $.ajax({
-                        url:url+'/'+$("#codeid").val(),
+                        url:upurl,
                         type: "POST",
                         dataType: 'json',
                         contentType: false,
@@ -280,56 +246,14 @@
                 });
             });
             //Edit  end
-            //Delete 
-            $("#contentContainer").on('click','#deleteBtn', function(){
-                var dataid = $(this).attr('rid');
-                var info_url = url + '/'+dataid;
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to recover this imaginary file!",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, delete it!",
-                    cancelButtonText: "No, cancel plx!",
-                    closeOnConfirm: false,
-                    closeOnCancel: false
-                }, function(isConfirm) {
-                    if (isConfirm) {
-                        $.ajax({
-                            url:info_url,
-                            method: "GET",
-                            type: "DELETE",
-                            data:{
-                            },
-                            success: function(d){
-                                if(d.success) {
-                                    swal("Deleted!", "Your imaginary file has been deleted.", "success");     
-                                    location.reload();
-                                }
-                            },
-                            error:function(d){
-                                console.log(d);
-                            }
-                        });
-                    } else {
-                        swal("Cancelled", "Your imaginary file is safe :)", "error");
-                    }
-                });
-            });
-            //Delete  
+             
             function populateForm(data){
                 $("#date").val(data.date);
                 $("#description").val(data.description);
                 $("#type").val(data.type);
-                $("#account_id").val(data.account_id);
+                $("#source").val(data.source);
                 $("#amount").val(data.amount);
-                $("#transfer_from").val(data.transfer_from);
-
-                if (data.type == 4) {
-                    $('#transferDiv').show(); 
-                }
-
-
+                $("#customer_id").val(data.customer_id);
                 $("#codeid").val(data.id);
                 $("#addBtn").val('Update');
                 $("#addThisFormContainer").show(300);

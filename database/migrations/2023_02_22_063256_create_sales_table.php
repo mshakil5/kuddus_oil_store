@@ -21,7 +21,8 @@ class CreateSalesTable extends Migration
             $table->string('product_id',191)->nullable();
             $table->string('invoiceno',191)->nullable();
             $table->string('company',191)->nullable();
-            $table->string('bank',191)->nullable();
+            $table->bigInteger('account_id')->unsigned()->nullable();
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->string('car_number',191)->nullable();
             $table->string('product_take',191)->nullable();
             $table->double('price_per_unit',10,2)->nullable();

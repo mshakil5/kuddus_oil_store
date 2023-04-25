@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Transaction;
+use App\Models\Account;
 Use Image;
 use Illuminate\support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,19 +23,19 @@ class SalesController extends Controller
     public function store(Request $request)
     {
 
-        if(empty($request->bank)){
-            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Bank Name \" field..!</b></div>";
+        if(empty($request->account_id)){
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Account Name \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
 
-        if($request->bank == "cash"){
-            if ($request->due > 0) {
-                $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Cash sales never allowed due amount. Please make full payment..!</b></div>";
-                return response()->json(['status'=> 303,'message'=>$message]);
-                exit();
-            }
-        }
+        // if($request->bank == "cash"){
+        //     if ($request->due > 0) {
+        //         $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Cash sales never allowed due amount. Please make full payment..!</b></div>";
+        //         return response()->json(['status'=> 303,'message'=>$message]);
+        //         exit();
+        //     }
+        // }
 
         if(empty($request->customer_id)){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Customer \" field..!</b></div>";
@@ -75,7 +76,7 @@ class SalesController extends Controller
         $data->invoiceno = date('his');
         $data->car_number = $request->car_number;
         $data->product_take = $request->product_take;
-        $data->bank = $request->bank;
+        $data->account_id = $request->account_id;
         $data->quantity = $request->quantity;
         $data->amount = $request->amount;
         $data->cash_rcv = $request->cash_rcv;
@@ -90,21 +91,8 @@ class SalesController extends Controller
             $customer->balance = $customer->balance + $request->cash_rcv - $request->amount;
             $customer->save();
 
-            $balance = Balance::find(1);
-                if ($request->bank == 'cash') {
-                    $balance->cash = $balance->cash + $request->cash_rcv;
-                }
-                if ($request->bank == 'pubali_bank') {
-                    $balance->pubali_bank = $balance->pubali_bank + $request->cash_rcv;
-                }
-
-                if ($request->bank == 'national_bank') {
-                    $balance->national_bank = $balance->national_bank + $request->cash_rcv;
-                }
-
-                if ($request->bank == 'other_bank') {
-                    $balance->other_bank = $balance->other_bank + $request->cash_rcv;
-                }
+            $balance = Account::find($request->account_id);
+            $balance->amount = $balance->amount + $request->cash_rcv;
             $balance->save();
 
             $tran = new Transaction();
@@ -112,21 +100,8 @@ class SalesController extends Controller
             $tran->date = $request->date;
             $tran->description = $request->description;
             $tran->type = "Sales";
-            if ($request->bank == 'cash') {
-                $tran->source = "1";
-            }
-            if ($request->bank == 'pubali_bank') {
-                $tran->source = "3";
-            }
-
-            if ($request->bank == 'national_bank') {
-                $tran->source = "2";
-            }
-
-            if ($request->bank == 'other_bank') {
-                $tran->source = "4";
-            }
-            $tran->amount = $request->amount;
+            $tran->account_id  = $request->account_id;
+            $tran->amount = $request->cash_rcv;
             $tran->status = "1";
             $tran->created_by = Auth::user()->id;
             $tran->save();
@@ -150,19 +125,19 @@ class SalesController extends Controller
     public function update(Request $request, $id)
     {
 
-        if(empty($request->bank)){
-            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Bank Name \" field..!</b></div>";
+        if(empty($request->account_id)){
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Account Name \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
 
-        if($request->bank == "cash"){
-            if ($request->due > 0) {
-                $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Cash sales never allowed due amount. Please make full payment..!</b></div>";
-                return response()->json(['status'=> 303,'message'=>$message]);
-                exit();
-            }
-        }
+        // if($request->bank == "cash"){
+        //     if ($request->due > 0) {
+        //         $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Cash sales never allowed due amount. Please make full payment..!</b></div>";
+        //         return response()->json(['status'=> 303,'message'=>$message]);
+        //         exit();
+        //     }
+        // }
 
         if(empty($request->customer_id)){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Customer \" field..!</b></div>";
@@ -195,23 +170,13 @@ class SalesController extends Controller
         }
 
         $sales = Sale::where('id', $id)->first();
+
         $customer = Customer::find($request->customer_id);
         $customer->balance = $customer->balance - $sales->cash_rcv + $sales->amount;
         $customer->save();
 
-        $balance = Balance::find(1);
-            if ($sales->bank == 'cash') {
-                $balance->cash = $balance->cash - $sales->cash_rcv;
-            }
-            if ($sales->bank == 'pubali_bank') {
-                $balance->pubali_bank = $balance->pubali_bank - $sales->cash_rcv;
-            }
-            if ($sales->bank == 'national_bank') {
-                $balance->national_bank = $balance->national_bank - $sales->cash_rcv;
-            }
-            if ($sales->bank == 'other_bank') {
-                $balance->other_bank = $balance->other_bank - $sales->cash_rcv;
-            }
+        $balance = Account::find($sales->account_id);
+        $balance->amount = $balance->amount - $sales->cash_rcv;
         $balance->save();
 
         $data = Sale::find($id);
@@ -221,7 +186,7 @@ class SalesController extends Controller
         $data->company = $request->company;
         $data->car_number = $request->car_number;
         $data->product_take = $request->product_take;
-        $data->bank = $request->bank;
+        $data->account_id = $request->account_id;
         $data->quantity = $request->quantity;
         $data->cash_rcv = $request->cash_rcv;
         $data->amount = $request->amount;
@@ -236,43 +201,18 @@ class SalesController extends Controller
             $customerupdate->balance = $customerupdate->balance + $request->cash_rcv - $request->amount;
             $customerupdate->save();
 
-            $balanceupdate = Balance::find(1);
-                if ($request->bank == 'cash') {
-                    $balanceupdate->cash = $balanceupdate->cash + $request->cash_rcv;
-                }
-                if ($request->bank == 'pubali_bank') {
-                    $balanceupdate->pubali_bank = $balanceupdate->pubali_bank + $request->cash_rcv;
-                }
-
-                if ($request->bank == 'national_bank') {
-                    $balanceupdate->national_bank = $balanceupdate->national_bank + $request->cash_rcv;
-                }
-
-                if ($request->bank == 'other_bank') {
-                    $balanceupdate->other_bank = $balanceupdate->other_bank + $request->cash_rcv;
-                }
+            $balanceupdate = Account::find($request->account_id);
+            $balanceupdate->amount = $balanceupdate->amount + $request->cash_rcv;
             $balanceupdate->save();
+
             $tranid = Transaction::where('sale_id',$id)->first();
             $tran = Transaction::find($tranid->id);
             $tran->sale_id = $data->id;
             $tran->date = $request->date;
             $tran->description = $request->description;
             $tran->type = "Sales";
-            if ($request->bank == 'cash') {
-                $tran->source = "1";
-            }
-            if ($request->bank == 'pubali_bank') {
-                $tran->source = "3";
-            }
-
-            if ($request->bank == 'national_bank') {
-                $tran->source = "2";
-            }
-
-            if ($request->bank == 'other_bank') {
-                $tran->source = "4";
-            }
-            $tran->amount = $request->amount;
+            $tran->account_id  = $request->account_id;
+            $tran->amount = $request->cash_rcv;
             $tran->status = "1";
             $tran->updated_by = Auth::user()->id;
             $tran->save();

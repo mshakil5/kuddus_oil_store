@@ -17,10 +17,13 @@ class CreateTransactionsTable extends Migration
             $table->id();
             $table->bigInteger('sale_id')->unsigned()->nullable();
             $table->foreign('sale_id')->references('id')->on('sales')->onDelete('cascade');
+            $table->bigInteger('customer_id')->unsigned()->nullable();
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->string('date',191)->nullable();
             $table->string('type',191)->nullable();
             $table->string('transfer_from',191)->nullable();
-            $table->string('source',191)->nullable();
+            $table->bigInteger('account_id')->unsigned()->nullable();
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->double('amount',10,2)->nullable();
             $table->longText('description')->nullable();
             $table->boolean('status')->default(0);
