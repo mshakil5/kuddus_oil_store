@@ -31,11 +31,11 @@
                     <div class="card">
                         <div class="card-header">
                             <h3>New Transaction</h3>
+                            <div class="ermsg">
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="ermsg">
-                                </div>
                                 <div class="container">
                                     {!! Form::open(['url' => 'admin/master/create','id'=>'createThisForm']) !!}
                                     {!! Form::hidden('codeid','', ['id' => 'codeid']) !!}
@@ -53,13 +53,12 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="source">Accounts Name</label>
-                                        <select  id="source" name="source" class="form-control">
+                                        <label for="account_id">Accounts Name</label>
+                                        <select id="account_id" name="account_id" class="form-control">
                                             <option value="">Select</option>
-                                            <option value="1">Cash</option>
-                                            <option value="2">National Bank</option>
-                                            <option value="3">Pubali Bank</option>
-                                            <option value="4">Others Bank</option>
+                                            @foreach (\App\Models\Account::all() as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div>
@@ -83,7 +82,7 @@
                 </div>
             </div>
         </div>
-        <a href="{{route('admin.customer')}}" class="btn btn-info">Back</a>
+        <a href="{{route('admin.customer')}}" id="backBtn" class="btn btn-info">Back</a>
         <hr>
         <div id="contentContainer">
             <div class="row">
@@ -114,30 +113,10 @@
                                             <td style="text-align: center">{{$data->date}}</td>
                                             <td style="text-align: center">{{$data->description}}</td>
                                             <td style="text-align: center">
-                                                @if ($data->type == 1)
                                                     Deposit
-                                                @elseif ($data->type == 2)
-                                                    Pay Order
-                                                @elseif ($data->type == 3)
-                                                    Expense
-                                                @elseif ($data->type == 4)
-                                                    Transfer
-                                                @else
-                                                    {{$data->type}}-
-                                                    @if (isset(\App\Models\Sale::where('id',$data->sale_id)->first()->invoiceno)){{\App\Models\Sale::where('id',$data->sale_id)->first()->invoiceno}}
-                                                    @endif
-                                                @endif
                                             </td>
                                             <td style="text-align: center">
-                                                @if ($data->source == 1)
-                                                Cash
-                                                @elseif ($data->source == 2)
-                                                National Bank
-                                                @elseif ($data->source == 3)
-                                                Pubali Bank
-                                                @else
-                                                Others Bank
-                                                @endif
+                                                {{$data->account->name}}
                                             </td>
                                             <td style="text-align: center">{{$data->amount}}</td>
                                             
@@ -165,17 +144,7 @@
 @endsection
 @section('script')
     <script>
-        $(function() {
-            $('#transferDiv').hide(); 
-            $('#type').change(function(){
-                if($('#type').val() == '4') {
-                    $('#transferDiv').show(); 
-                } else {
-                    $('#transfer_from').val(""); 
-                    $('#transferDiv').hide(); 
-                } 
-            });
-        });
+        
 
         $(document).ready(function () {
             $("#addThisFormContainer").hide();
@@ -205,7 +174,7 @@
                     form_data.append("date", $("#date").val());
                     form_data.append("description", $("#description").val());
                     form_data.append("type", $("#type").val());
-                    form_data.append("source", $("#source").val());
+                    form_data.append("account_id", $("#account_id").val());
                     form_data.append("amount", $("#amount").val());
                     form_data.append("customer_id", $("#customer_id").val());
                     form_data.append("codeid", $("#codeid").val());
@@ -251,13 +220,14 @@
                 $("#date").val(data.date);
                 $("#description").val(data.description);
                 $("#type").val(data.type);
-                $("#source").val(data.source);
+                $("#account_id").val(data.account_id);
                 $("#amount").val(data.amount);
                 $("#customer_id").val(data.customer_id);
                 $("#codeid").val(data.id);
                 $("#addBtn").val('Update');
                 $("#addThisFormContainer").show(300);
                 $("#newBtn").hide(100);
+                $("#backBtn").hide(100);
             }
             function clearform(){
                 $('#createThisForm')[0].reset();
@@ -285,7 +255,7 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#transaction").addClass('active');
+            $("#customer").addClass('active');
         });
     </script>
 @endsection

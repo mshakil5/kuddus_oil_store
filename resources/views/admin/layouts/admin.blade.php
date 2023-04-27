@@ -5,7 +5,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Admin</title>
+    <title>Kuddus Oil Store</title>
     <!-- Twitter meta-->
     <meta property="twitter:card" content="hasibuzzaman">
     <meta property="twitter:site" content="@hasibuzzaman">
@@ -125,12 +125,12 @@
         @endif
         
 
-        {{-- <li class="treeview" id="allgallery"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Gallery</span><i class="treeview-indicator fa fa-angle-right"></i></a>
+        <li class="treeview" id="allreport"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Report</span><i class="treeview-indicator fa fa-angle-right"></i></a>
           <ul class="treeview-menu">
-            <li><a class="treeview-item" href="{{ route('admin.gallery_category')}}" id="gallerycategory"><i class="icon fa fa-circle-o"></i>Add Category</a></li>
-            <li><a class="treeview-item" href="{{ route('admin.gallery')}}" id="gallery"><i class="icon fa fa-circle-o"></i> Add Image</a></li>
+            <li><a class="treeview-item" href="{{route('admin.salesreport')}}" id="salesreport"><i class="icon fa fa-circle-o"></i>Sales</a></li>
+            <li><a class="treeview-item" href="{{route('admin.transactionreport')}}" id="tranreport"><i class="icon fa fa-circle-o"></i> Transaction</a></li>
           </ul>
-        </li> --}}
+        </li>
 
         {{-- <li class="treeview"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Code Master</span><i class="treeview-indicator fa fa-angle-right"></i></a>
           <ul class="treeview-menu">
@@ -229,8 +229,21 @@
 <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap4.min.js"></script> 
 
 
- <script type="text/javascript" src="{{asset('js/plugins/bootstrap-notify.min.js')}}"></script>
- <script type="text/javascript" src="{{asset('js/plugins/sweetalert.min.js')}}"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap4.min.js"></script> 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script> 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script> 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script> 
+
+
+
+
+<script type="text/javascript" src="{{asset('js/plugins/bootstrap-notify.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/plugins/sweetalert.min.js')}}"></script>
      @yield('script')
     </body>
     </html>

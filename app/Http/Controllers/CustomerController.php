@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\Balance;
 Use Image;
@@ -151,7 +152,7 @@ class CustomerController extends Controller
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
-        if(empty($request->source)){
+        if(empty($request->account_id)){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Account Name \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
@@ -162,33 +163,22 @@ class CustomerController extends Controller
             exit();
         }
 
-        $customer = Customer::find($request->uid);
+        $customer = Customer::find($request->customerid);
         $customer->balance = $customer->balance + $request->amount;
         if ($customer->save()) {
             $data = new Transaction();
-            $data->customer_id = $request->uid;
+            $data->customer_id = $request->customerid;
             $data->date = $request->date;
             $data->description = $request->description;
             $data->type = $request->type;
-            $data->source = $request->source;
+            $data->account_id = $request->account_id;
             $data->amount = $request->amount;
             $data->status = "1";
             $data->created_by = Auth::user()->id;
             $data->save();
 
-            $balance = Balance::find(1);
-                if ($request->source == 1) {
-                    $balance->cash = $balance->cash + $request->amount;
-                } 
-                if ($request->source == 2) {
-                    $balance->national_bank = $balance->national_bank + $request->amount;
-                } 
-                if ($request->source == 3) {
-                    $balance->pubali_bank = $balance->pubali_bank + $request->amount;
-                } 
-                if ($request->source == 4) {
-                    $balance->other_bank = $balance->other_bank + $request->amount;
-                }
+            $balance = Account::find($request->account_id);
+            $balance->amount = $balance->amount + $request->amount;
             $balance->save();
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
@@ -211,7 +201,7 @@ class CustomerController extends Controller
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
-        if(empty($request->source)){
+        if(empty($request->account_id)){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Account Name \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
@@ -221,48 +211,28 @@ class CustomerController extends Controller
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
-        $oldtran = Transaction::where('id',$request->codeid)->first();
-        $balance = Balance::find(1);
-            if ($request->source == 1) {
-                $balance->cash = $balance->cash - $oldtran->amount;
-            } 
-            if ($request->source == 2) {
-                $balance->national_bank = $balance->national_bank - $oldtran->amount;
-            } 
-            if ($request->source == 3) {
-                $balance->pubali_bank = $balance->pubali_bank - $oldtran->amount;
-            } 
-            if ($request->source == 4) {
-                $balance->other_bank = $balance->other_bank - $oldtran->amount;
-            }
-        $balance->save();
+        $prevtran = Transaction::where('id',$request->codeid)->first();
+
+
+        $prevbalance = Account::find($prevtran->account_id);
+        $prevbalance->amount = $prevbalance->amount - $prevtran->amount;
+        $prevbalance->save();
 
         $customer = Customer::find($request->customer_id);
-        $customer->balance = $customer->balance - $oldtran->amount + $request->amount;
+        $customer->balance = $customer->balance - $prevtran->amount + $request->amount;
         if ($customer->save()) {
             $data = Transaction::find($request->codeid);
             $data->date = $request->date;
             $data->description = $request->description;
             $data->type = $request->type;
-            $data->source = $request->source;
+            $data->account_id = $request->account_id;
             $data->amount = $request->amount;
             $data->status = "1";
             $data->created_by = Auth::user()->id;
             $data->save();
 
-            $balance = Balance::find(1);
-                if ($request->source == 1) {
-                    $balance->cash = $balance->cash + $request->amount;
-                } 
-                if ($request->source == 2) {
-                    $balance->national_bank = $balance->national_bank + $request->amount;
-                } 
-                if ($request->source == 3) {
-                    $balance->pubali_bank = $balance->pubali_bank + $request->amount;
-                } 
-                if ($request->source == 4) {
-                    $balance->other_bank = $balance->other_bank + $request->amount;
-                }
+            $balance = Account::find($request->account_id);
+            $balance->amount = $balance->amount + $request->amount;
             $balance->save();
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";

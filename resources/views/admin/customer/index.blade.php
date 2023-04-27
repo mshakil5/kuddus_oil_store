@@ -37,12 +37,11 @@
                             <div class="row">
                                 <div class="container">
                                     {!! Form::open(['url' => 'admin/master/create','id'=>'createThisTranForm']) !!}
-                                    {!! Form::hidden('codeid','', ['id' => 'codeid']) !!}
                                     @csrf
                                     <div>
                                         <label for="date">Date</label>
                                         <input type="date" id="date" name="date" value="{{date('Y-m-d')}}" class="form-control">
-                                        <input type="hidden" id="uid" name="uid" class="form-control">
+                                        <input type="hidden" id="customerid" name="customerid" class="form-control">
                                     </div>
                                     <div>
                                         <label for="type">Transaction Type</label>
@@ -52,14 +51,16 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="source">Accounts Name</label>
-                                        <select  id="source" name="source" class="form-control">
+                                        <label for="account_id">Accounts Name</label>
+
+                                        
+                                        <select id="account_id" name="account_id" class="form-control">
                                             <option value="">Select</option>
-                                            <option value="1">Cash</option>
-                                            <option value="2">National Bank</option>
-                                            <option value="3">Pubali Bank</option>
-                                            <option value="4">Others Bank</option>
+                                            @foreach (\App\Models\Account::all() as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                            @endforeach
                                         </select>
+
                                     </div>
                                     <div>
                                         <label for="description">Description</label>
@@ -207,12 +208,8 @@
                 $("#addThisFormContainer").show(300);
 
             });
-            // $("#DepBtn").click(function(){
-            //     clearform();
-            //     $("#newBtn").hide(100);
-            //     $("#addThisTransactionForm").show(300);
+            
 
-            // });
             $("#FormCloseBtn").click(function(){
                 $("#addThisFormContainer").hide(200);
                 $("#newBtn").show(100);
@@ -367,30 +364,28 @@
             // Add 
             $("#contentContainer").on('click','#DepBtn', function(){
                 
-                codeid = $(this).attr('rid');
                 uid = $(this).attr('uid');
                 
-                $("#dataid").val(codeid);
-                $("#uid").val(uid);
+                $("#customerid").val(uid);
                 $("#addThisTransactionForm").show(300);
                 $("#newBtn").hide(300);
                     pagetop();
             });
             // Add end
 
-            var url = "{{URL::to('/admin/customer-deposit')}}";
+            var depositurl = "{{URL::to('/admin/customer-deposit')}}";
             // console.log(url);
             $("#addtranBtn").click(function(){
             //   alert("#addBtn");
                     var form_data = new FormData();
-                    form_data.append("uid", $("#uid").val());
+                    form_data.append("customerid", $("#customerid").val());
                     form_data.append("date", $("#date").val());
                     form_data.append("description", $("#description").val());
                     form_data.append("type", $("#type").val());
-                    form_data.append("source", $("#source").val());
+                    form_data.append("account_id", $("#account_id").val());
                     form_data.append("amount", $("#amount").val());
                     $.ajax({
-                      url: url,
+                      url: depositurl,
                       method: "POST",
                       contentType: false,
                       processData: false,

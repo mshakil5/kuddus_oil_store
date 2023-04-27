@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\ContactMailController; 
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\AdminController;
@@ -76,6 +77,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/contact-mail', [ContactMailController::class, 'index'])->name('admin.contact-mail');
     Route::get('/contact-mail/{id}/edit', [ContactMailController::class, 'edit']);
     Route::put('/contact-mail/{id}', [ContactMailController::class, 'update'])->name('admin.contact.update');
+
+    // report
+    Route::get('/sales-report', [ReportController::class, 'salesReport'])->name('admin.salesreport');
+    Route::post('/sales-report', [ReportController::class, 'salesReport'])->name('salesReport.search');
+    
+    Route::get('/transaction-report', [ReportController::class, 'transactionReport'])->name('admin.transactionreport');
+    Route::post('/transaction-report', [ReportController::class, 'transactionReport'])->name('transactionReport.search');
 
 
 });
